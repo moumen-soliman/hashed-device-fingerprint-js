@@ -34,6 +34,7 @@ export async function generateHashedFingerprint(options: Partial<FingerprintOpti
     try {
         const deviceDataParts: string[] = [];
 
+        deviceDataParts.push(`${navigator.maxTouchPoints}`)
         if (useUserAgent) deviceDataParts.push(navigator.userAgent);
         if (useLanguage) deviceDataParts.push(navigator.language);
         if (useScreenResolution) {

@@ -1,15 +1,26 @@
 const esbuild = require('esbuild');
+const { execSync } = require('child_process');
 
+// Build JavaScript bundle using esbuild
 esbuild.build({
-    entryPoints: ['./src/index.ts'], // Path to your main TypeScript file
-    outfile: './dist/index.min.js', // Path to the output minified file
-    bundle: true,                  // Bundle all dependencies into one file
-    minify: true,                  // Minify the output
-    sourcemap: false,              // Disable source maps for production
-    target: ['esnext'],            // Target modern JavaScript environments
-    format: 'cjs',                 // Output format (CommonJS for Node.js packages)
-    platform: 'browser',           // Set to 'browser' for frontend compatibility
-    external: ['js-sha256'],       // Mark external dependencies not to be bundled
+    entryPoints: ['./src/index.ts'],
+    outfile: './dist/index.min.js',
+    bundle: true,
+    minify: true,
+    sourcemap: false,
+    target: ['esnext'],
+    format: 'cjs',
+    platform: 'browser',
+    external: ['js-sha256']
 })
-    .then(() => console.log('Build succeeded! Minified file created at ./dist/index.min.js'))
+    .then(() => console.log('JavaScript build succeeded!'))
     .catch(() => process.exit(1));
+
+// Generate TypeScript type definitions using tsc
+try {
+    execSync('tsc', { stdio: 'inherit' });
+    console.log('TypeScript declaration files generated!');
+} catch (error) {
+    console.error('Error generating TypeScript declarations:', error);
+    process.exit(1);
+}

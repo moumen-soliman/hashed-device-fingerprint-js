@@ -1,11 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "CommonJS",
-    "strict": true,
-    "declaration": true,
-    "outDir": "./dist",
-    "esModuleInterop": true
+    "outDir": "./dist",               // Output directory for compiled files
+    "declaration": true,             // Emit `.d.ts` files
+    "declarationMap": true,          // Emit source maps for `.d.ts` files
+    "emitDeclarationOnly": true,     // Only emit `.d.ts` files, no `.js`
+    "strict": true,                  // Enable strict type checking
+    "moduleResolution": "node",      // Resolve modules as Node.js does
+    "target": "ES6",                 // Target ECMAScript version
+    "module": "ES6",                 // Use ES6 modules
+    "allowJs": false,                // Disallow compiling `.js` files
+    "esModuleInterop": true,         // Enable interoperability between CommonJS and ES modules
+    "skipLibCheck": true,            // Skip checking types of dependencies
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],            // Include all TypeScript files in `src`
+  "exclude": ["node_modules", "dist"] // Exclude `node_modules` and `dist` folders
 }
