@@ -1,4 +1,17 @@
 # hashed-device-fingerprint-js
+
+```
++-------------------+------------------------+
+|          https://yoursite.com              |
++-------------------+------------------------+
+         |                |                |
++-----------------+-----------------+-----------------+
+| (DEVICE A)      | (DEVICE B)      | (DEVICE C)      |
+| unique device   | unique device   | unique device   |
+| fingerprint     | fingerprint     | fingerprint     |
++-----------------+-----------------+-----------------+
+```
+
 A lightweight JavaScript/TypeScript package for generating hashed fingerprints based on device data. Includes options for customizable device information, IP address integration, and cookie management.
 
 ## Features
