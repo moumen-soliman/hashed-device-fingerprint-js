@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hashed Device Fingerprint JS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-white text-gray-800">
+    <!-- Hero Section -->
+    <header class="container mx-auto px-4 py-16 text-center">
+        <i class="fas fa-fingerprint text-5xl mb-6 text-gray-900"></i>
+        <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+            Hashed Device Fingerprint JS
+        </h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            A lightweight JavaScript library for generating unique device fingerprints using advanced hashing techniques
+        </p>
+        <div class="bg-gray-100 p-4 rounded-lg inline-block">
+            <code class="text-gray-800">npm install hashed-device-fingerprint-js</code>
+            <button onclick="navigator.clipboard.writeText('npm install hashed-device-fingerprint-js')" 
+                    class="ml-2 text-gray-600 hover:text-gray-900">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="container mx-auto px-4 py-12">
+        <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div class="p-6 bg-gray-50 rounded-lg">
+                <i class="fas fa-shield-alt text-2xl text-gray-900 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Secure Hashing</h3>
+                <p class="text-gray-600">Uses advanced hashing algorithms to generate unique device fingerprints</p>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-lg">
+                <i class="fas fa-bolt text-2xl text-gray-900 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Lightweight</h3>
+                <p class="text-gray-600">Minimal footprint with zero dependencies</p>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-lg">
+                <i class="fas fa-code text-2xl text-gray-900 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Easy Integration</h3>
+                <p class="text-gray-600">Simple API for quick implementation in any JavaScript project</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage Example Section -->
+    <section class="container mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold text-center mb-8">Quick Start</h2>
+        <div class="max-w-3xl mx-auto bg-gray-100 p-6 rounded-lg">
+            <pre class="text-sm overflow-x-auto"><code>
+import { generateHashedFingerprint } from 'hashed-device-fingerprint-js';
+
+// Generate a unique device fingerprint
+generateHashedFingerprint()
+    .then(hash => console.log('Fingerprint Hash:', hash))
+    .catch(error => console.error('Error:', error));
+            </code></pre>
+        </div>
+    </section>
+
+
+      <!-- Usage Example Section -->
+      <section class="container mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold text-center mb-8">Custom Options</h2>
+        <div class="max-w-3xl mx-auto bg-gray-100 p-6 rounded-lg">
+            <pre class="text-sm overflow-x-auto"><code>
+import { hashedDeviceFingerprint } from 'hashed-device-fingerprint-js';
+
+generateHashedFingerprint({
+    useUserAgent: true,         // Include the user agent (default: true)
+    useLanguage: false,         // Exclude the browser language
+    useScreenResolution: true,  // Include screen resolution (default: true)
+    usePlatform: true,          // Include platform information (default: true)
+    useConcurrency: true,       // Include logical processors (default: true)
+    useIP: true,                // Fetch and include the user's IP (default: true)
+    userIP: '203.0.113.45',     // Provide IP manually (overrides API fetch)
+    saveToCookie: false,        // Do not save the hash in a cookie (default: true)
+    cookieExpiryDays: 10        // Cookie expiry in days (default: 7)
+})
+    .then(hash => console.log('Custom Fingerprint Hash:', hash))
+    .catch(error => console.error('Error:', error));
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- GitHub Link -->
+    <footer class="container mx-auto px-4 py-8 text-center">
+        <a href="https://github.com/moumen-soliman/hashed-device-fingerprint-js" 
+           class="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900">
+            <i class="fab fa-github text-xl"></i>
+            <span>View on GitHub</span>
+        </a>
+    </footer>
+</body>
+</html>
