@@ -1,0 +1,26 @@
+{
+  "name": "hashed-device-fingerprint",
+  "version": "1.0.0",
+  "description": "A lightweight library for generating hashed fingerprints based on selected device data.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node test/index.test.js"
+  },
+  "keywords": [
+    "fingerprint",
+    "hash",
+    "sha256",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Moumen Soliman",
+  "license": "MIT",
+  "dependencies": {
+    "js-sha256": "^0.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
