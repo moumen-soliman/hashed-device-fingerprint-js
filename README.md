@@ -22,7 +22,7 @@ npm install hashed-device-fingerprint-js
 Generate a hashed fingerprint with all options enabled (default behavior):
 
 ```typescript
-import { generateHashedFingerprint } from 'hashed-fingerprint';
+import { generateHashedFingerprint } from 'hashed-device-fingerprint-js';
 
 generateHashedFingerprint()
     .then(hash => console.log('Fingerprint Hash:', hash))
@@ -131,7 +131,7 @@ generateHashedFingerprint({ userIP: '203.0.113.45' })
 The package includes TypeScript type definitions for all options and methods. Here’s a quick example:
 
 ```typescript
-import { generateHashedFingerprint, FingerprintOptions } from 'hashed-fingerprint';
+import { generateHashedFingerprint, FingerprintOptions } from 'hashed-device-fingerprint-js';
 
 const options: Partial<FingerprintOptions> = {
     saveToCookie: false,
