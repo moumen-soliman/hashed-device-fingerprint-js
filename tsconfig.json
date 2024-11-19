@@ -11,7 +11,8 @@
     "allowJs": false,                // Disallow compiling `.js` files
     "esModuleInterop": true,         // Enable interoperability between CommonJS and ES modules
     "skipLibCheck": true,            // Skip checking types of dependencies
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
   },
   "include": ["src/**/*"],            // Include all TypeScript files in `src`
   "exclude": ["node_modules", "dist"] // Exclude `node_modules` and `dist` folders
