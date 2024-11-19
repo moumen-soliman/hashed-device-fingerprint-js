@@ -14,6 +14,8 @@
 
 A lightweight JavaScript/TypeScript package for generating hashed fingerprints based on device data. Includes options for customizable device information, IP address integration, and cookie management.
 
+[**NPM**](https://www.npmjs.com/package/hashed-device-fingerprint-js)
+
 ## Features
 - Device Data Fingerprinting: Collects user agent, screen resolution, platform, and more.
 - SHA-256 Hashing: Uses [js-sha256](https://www.npmjs.com/package/js-sha256) for secure hashing.
