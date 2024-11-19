@@ -1,20 +1,21 @@
 import { sha256 } from "js-sha256";
 
 export interface FingerprintOptions {
-    saveToCookie?: boolean; // Save the hashed fingerprint to a cookie
-    cookieExpiryDays?: number; // Cookie expiry in days
+    saveToCookie?: boolean; // Save the hashed fingerprint to a cookie (browser only)
+    cookieExpiryDays?: number; // Cookie expiry in days (browser only)
     useUserAgent?: boolean; // Include user agent in the fingerprint
-    useLanguage?: boolean; // Include browser language
-    useScreenResolution?: boolean; // Include screen resolution
+    useLanguage?: boolean; // Include browser/system language
+    useScreenResolution?: boolean; // Include screen resolution (browser only)
     usePlatform?: boolean; // Include platform information
-    useConcurrency?: boolean; // Include hardware concurrency
+    useConcurrency?: boolean; // Include hardware concurrency (browser only)
     useIP?: boolean; // Include the user's IP address
     userIP?: string | null; // Directly provide the user's IP address
+    headers?: Record<string, string | string[]>; // Server-side headers
+    environment?: 'browser' | 'server'; // Specify the environment explicitly
 }
 
 /**
- * Generate a hashed fingerprint based on selected device data.
- * By default, all options are enabled unless explicitly set to false.
+ * Generate a hashed fingerprint based on available device or server data.
  * @param options - Options to customize the behavior.
  * @returns A promise that resolves with the hashed fingerprint.
  */
@@ -29,68 +30,89 @@ export async function generateHashedFingerprint(options: Partial<FingerprintOpti
         useConcurrency = true,
         useIP = true,
         userIP = null,
+        headers = {},
+        environment = typeof window !== "undefined" ? "browser" : "server",
     } = { ...defaultFingerprintOptions(), ...options };
 
     try {
         const deviceDataParts: string[] = [];
 
-        deviceDataParts.push(`${navigator.maxTouchPoints}`)
-        if (useUserAgent) deviceDataParts.push(navigator.userAgent);
-        if (useLanguage) deviceDataParts.push(navigator.language);
-        if (useScreenResolution) {
-            deviceDataParts.push(`${screen.width}x${screen.height}`);
-            deviceDataParts.push(`${screen.colorDepth}-bit`);
-        }
-        if (usePlatform) deviceDataParts.push(navigator.platform);
-        if (useConcurrency) deviceDataParts.push(`${navigator.hardwareConcurrency} cores`);
+        if (environment === "browser") {
+            // Browser-specific fingerprint data
+            if (useUserAgent) deviceDataParts.push(navigator.userAgent);
+            if (useLanguage) deviceDataParts.push(navigator.language);
+            if (useScreenResolution) {
+                deviceDataParts.push(`${screen.width}x${screen.height}`);
+                deviceDataParts.push(`${screen.colorDepth}-bit`);
+            }
+            if (usePlatform) deviceDataParts.push(navigator.platform);
+            if (useConcurrency) deviceDataParts.push(`${navigator.hardwareConcurrency} cores`);
+            deviceDataParts.push(`${navigator.maxTouchPoints}`);
 
-        // Handle IP address inclusion logic
-        if (useIP) {
-            if (userIP) {
-                // Use the provided IP address
-                deviceDataParts.push(userIP);
-            } else {
-                // Fetch IP address if not provided
-                const ip = await fetchUserIP();
-                if (ip) deviceDataParts.push(ip);
+            if (useIP) {
+                if (userIP) {
+                    deviceDataParts.push(userIP);
+                } else {
+                    const ip = await fetchUserIP();
+                    if (ip) deviceDataParts.push(ip);
+                }
+            }
+
+            // Save to cookie if enabled
+            if (saveToCookie) {
+                const expiryDate = new Date();
+                expiryDate.setTime(expiryDate.getTime() + cookieExpiryDays * 24 * 60 * 60 * 1000);
+                document.cookie = `hashedFingerprint=${sha256(deviceDataParts.join('||'))}; expires=${expiryDate.toUTCString()}; path=/`;
+            }
+        } else if (environment === "server") {
+            // Server-specific fingerprint data
+            if (useUserAgent && headers["user-agent"]) {
+                deviceDataParts.push(
+                    Array.isArray(headers["user-agent"]) ? headers["user-agent"][0] : headers["user-agent"]
+                );
+            }
+            if (useLanguage && headers["accept-language"]) {
+                deviceDataParts.push(
+                    Array.isArray(headers["accept-language"]) ? headers["accept-language"][0] : headers["accept-language"]
+                );
+            }
+            if (usePlatform) {
+                deviceDataParts.push(process.platform);
+            }
+            if (useIP) {
+                if (userIP) {
+                    deviceDataParts.push(userIP);
+                } else if (headers["x-forwarded-for"]) {
+                    deviceDataParts.push(
+                        Array.isArray(headers["x-forwarded-for"]) ? headers["x-forwarded-for"][0] : headers["x-forwarded-for"]
+                    );
+                }
             }
         }
 
-        const deviceData = deviceDataParts.join('||');
-
-        // Perform SHA-256 hashing
-        const hashedFingerprint = sha256(deviceData);
-
-        // Save to cookie if enabled
-        if (saveToCookie) {
-            const expiryDate = new Date();
-            expiryDate.setTime(
-                expiryDate.getTime() + cookieExpiryDays * 24 * 60 * 60 * 1000
-            );
-            document.cookie = `hashedFingerprint=${hashedFingerprint}; expires=${expiryDate.toUTCString()}; path=/`;
-        }
-
-        return hashedFingerprint;
+        const deviceData = deviceDataParts.join("||");
+        return sha256(deviceData);
     } catch (error) {
         if (error instanceof Error) {
             throw new Error(`Failed to generate fingerprint: ${error.message}`);
         }
-        throw new Error('An unknown error occurred during fingerprint generation.');
+        throw new Error("An unknown error occurred during fingerprint generation.");
     }
 }
 
 /**
  * Fetch the user's public IP address using an external service.
+ * This is only used in a browser environment.
  * @returns A promise that resolves with the IP address as a string.
  */
 async function fetchUserIP(): Promise<string | null> {
     try {
-        const response = await fetch('https://api64.ipify.org?format=json');
-        if (!response.ok) throw new Error('Failed to fetch IP address');
+        const response = await fetch("https://api64.ipify.org?format=json");
+        if (!response.ok) throw new Error("Failed to fetch IP address");
         const data = await response.json();
         return data.ip || null;
     } catch (error) {
-        console.error('Error fetching IP address:', error);
+        console.error("Error fetching IP address:", error);
         return null;
     }
 }
@@ -109,5 +131,7 @@ function defaultFingerprintOptions(): FingerprintOptions {
         useConcurrency: true,
         useIP: true,
         userIP: null,
+        headers: {},
+        environment: "browser",
     };
 }
