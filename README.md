@@ -16,8 +16,6 @@ A lightweight JavaScript/TypeScript package that generates unique hashed fingerp
 
 [**NPM**](https://www.npmjs.com/package/hashed-device-fingerprint-js)
 
-[**NPM**](https://www.npmjs.com/package/hashed-device-fingerprint-js)
-
 ## Features
 - Generate a unique fingerprint hash based on:
   - User Agent
