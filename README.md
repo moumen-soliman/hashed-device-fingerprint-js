@@ -12,17 +12,26 @@
 +-----------------+-----------------+-----------------+
 ```
 
-A lightweight JavaScript/TypeScript package for generating hashed fingerprints based on device data. Includes options for customizable device information, IP address integration, and cookie management.
+A lightweight JavaScript/TypeScript package that generates unique hashed fingerprints for devices in both browser and server environments. The library allows customization of what data is included in the fingerprint, with options for saving the hash in cookies, passing headers for server-side use, and providing the user's IP directly.
+
+[**NPM**](https://www.npmjs.com/package/hashed-device-fingerprint-js)
 
 [**NPM**](https://www.npmjs.com/package/hashed-device-fingerprint-js)
 
 ## Features
-- Device Data Fingerprinting: Collects user agent, screen resolution, platform, and more.
-- SHA-256 Hashing: Uses [js-sha256](https://www.npmjs.com/package/js-sha256) for secure hashing.
-- IP Address Integration: Fetch IP automatically, pass it manually, or disable it entirely.
-- Cookie Management: Optionally save hashed fingerprints in cookies.
-- Fully Configurable: Enable or disable specific device data fields as needed.
-- TypeScript Support: Fully typed for better integration with modern frameworks like Next.js.
+- Generate a unique fingerprint hash based on:
+  - User Agent
+  - Browser/System Language
+  - Screen Resolution (Browser-only)
+  - Platform (e.g., `Win32` or `Linux`)
+  - Hardware Concurrency (Browser-only)
+  - IP Address (with options to pass it manually or fetch automatically)
+- Support for browser and server environments:
+  - **Browser**: Uses `navigator` and `screen` properties.
+  - **Server**: Relies on HTTP headers and server-side properties.
+- Save the hashed fingerprint in a cookie (browser only) with a customizable expiration time.
+- Fully customizable: enable or disable specific data points.
+- Compatible with both `require` (CommonJS) and `import` (ES Modules).
 
 ## Installation
 Install the package using npm:
@@ -38,14 +47,37 @@ yarn add hashed-device-fingerprint-js
 ```
 
 ## Usage
-### Basic Usage
+### Default Behavior (Browser)
 
-Generate a hashed fingerprint with all options enabled (default behavior):
+By default, all options are enabled. The library generates a fingerprint hash using all available device data and automatically fetches the user's IP address.
 
 ```typescript
 import { generateHashedFingerprint } from 'hashed-device-fingerprint-js';
 
 generateHashedFingerprint()
+    .then(hash => console.log('Fingerprint Hash:', hash))
+    .catch(error => console.error('Error:', error));
+```
+
+### Server-Side Usage
+
+In a Server environment, pass HTTP headers to generate a fingerprint. Use the environment option to specify the server-side environment.
+
+```typescript
+const { generateHashedFingerprint } = require('hashed-device-fingerprint-js');
+// import { generateHashedFingerprint } from 'hashed-device-fingerprint-js';
+
+// Example HTTP headers
+const headers = {
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    'accept-language': 'en-US,en;q=0.9',
+    'x-forwarded-for': '203.0.113.45',
+};
+
+generateHashedFingerprint({
+    environment: 'server',
+    headers,
+})
     .then(hash => console.log('Fingerprint Hash:', hash))
     .catch(error => console.error('Error:', error));
 ```
@@ -67,6 +99,102 @@ generateHashedFingerprint({
 })
     .then(hash => console.log('Custom Fingerprint Hash:', hash))
     .catch(error => console.error('Error:', error));
+```
+
+## IP Address Handling
+The IP address is included in the fingerprint based on these rules:
+
+- If `userIP` is provided, it is used directly.
+- If `userIP` is null and useIP is true, the IP is fetched using an external API (https://api64.ipify.org).
+- If useIP is false, the IP is excluded entirely.
+
+## Example Scenarios
+### Save Fingerprint in a Cookie
+
+```typescript
+generateHashedFingerprint({ saveToCookie: true })
+    .then(hash => console.log('Fingerprint saved in cookie:', hash))
+    .catch(error => console.error('Error:', error));
+```
+
+### Disable IP Fetching
+
+```typescript
+generateHashedFingerprint({ useIP: false })
+    .then(hash => console.log('Fingerprint without IP:', hash))
+    .catch(error => console.error('Error:', error));
+```
+
+### Provide Manual IP
+```typescript
+generateHashedFingerprint({ userIP: '203.0.113.45' })
+    .then(hash => console.log('Fingerprint with manual IP:', hash))
+    .catch(error => console.error('Error:', error));
+```
+
+### Server API
+```javascript
+const { generateHashedFingerprint } = require('hashed-device-fingerprint-js');
+
+// Basic route
+app.get('/hash', async (req, res) => {
+    // Define headers for fingerprint generation
+    const headers = {
+        'user-agent': req.headers['user-agent'] || 'Unknown',
+        'accept-language': req.headers['accept-language'] || 'Unknown',
+        'x-forwarded-for': req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'Unknown',
+    };
+
+    try {
+        // Generate the fingerprint hash
+        const hash = await generateHashedFingerprint({
+            environment: 'server',
+            headers,
+        });
+
+        // Log the hash
+        console.log('Generated Hash:', hash);
+
+        // Send the hash as the response
+        res.send({ hash });
+    } catch (error) {
+        // Handle errors
+        console.error('Error generating fingerprint:', error);
+        res.status(500).send({ error: 'Failed to generate fingerprint' });
+    }
+});
+```
+
+## TypeScript Support
+The package includes TypeScript type definitions for all options and methods. Here’s a quick example:
+
+```typescript
+import { generateHashedFingerprint, FingerprintOptions } from 'hashed-device-fingerprint-js';
+
+const options: Partial<FingerprintOptions> = {
+    saveToCookie: false,
+    useUserAgent: true,
+    useIP: true
+};
+
+generateHashedFingerprint(options)
+    .then(hash => console.log('Typed Fingerprint Hash:', hash))
+    .catch(error => console.error('Error:', error));
+```
+
+## Error Handling
+Errors are thrown as JavaScript Error objects. Use a try-catch block or .catch() to handle them safely:
+
+```typescript
+generateHashedFingerprint()
+    .then(hash => console.log('Fingerprint Hash:', hash))
+    .catch(error => {
+        if (error instanceof Error) {
+            console.error('Error:', error.message);
+        } else {
+            console.error('Unknown Error:', error);
+        }
+    });
 ```
 
 ## Options
@@ -116,72 +244,27 @@ generateHashedFingerprint({
   - Default: `null`
   - Description: Provide an IP address manually (overrides API fetch).
 
+- `headers`
+  - Type: `Record<string, string[]>`
+  - Default: `{}`
+  - Description: HTTP headers for server-side fingerprinting.
 
-## IP Address Handling
-The IP address is included in the fingerprint based on these rules:
-
-- If `userIP` is provided, it is used directly.
-- If `userIP` is null and useIP is true, the IP is fetched using an external API (https://api64.ipify.org).
-- If useIP is false, the IP is excluded entirely.
-
-## Example Scenarios
-### Save Fingerprint in a Cookie
-
-```typescript
-generateHashedFingerprint({ saveToCookie: true })
-    .then(hash => console.log('Fingerprint saved in cookie:', hash))
-    .catch(error => console.error('Error:', error));
-```
-
-### Disable IP Fetching
-
-```typescript
-generateHashedFingerprint({ useIP: false })
-    .then(hash => console.log('Fingerprint without IP:', hash))
-    .catch(error => console.error('Error:', error));
-```
-
-### Provide Manual IP
-```typescript
-generateHashedFingerprint({ userIP: '203.0.113.45' })
-    .then(hash => console.log('Fingerprint with manual IP:', hash))
-    .catch(error => console.error('Error:', error));
-```
-
-## TypeScript Support
-The package includes TypeScript type definitions for all options and methods. Here’s a quick example:
-
-```typescript
-import { generateHashedFingerprint, FingerprintOptions } from 'hashed-device-fingerprint-js';
-
-const options: Partial<FingerprintOptions> = {
-    saveToCookie: false,
-    useUserAgent: true,
-    useIP: true
-};
-
-generateHashedFingerprint(options)
-    .then(hash => console.log('Typed Fingerprint Hash:', hash))
-    .catch(error => console.error('Error:', error));
-```
-
-## Error Handling
-Errors are thrown as JavaScript Error objects. Use a try-catch block or .catch() to handle them safely:
-
-```typescript
-generateHashedFingerprint()
-    .then(hash => console.log('Fingerprint Hash:', hash))
-    .catch(error => {
-        if (error instanceof Error) {
-            console.error('Error:', error.message);
-        } else {
-            console.error('Unknown Error:', error);
-        }
-    });
-```
+- `environment`
+  - Type: `'browser' | 'server'`
+  - Default: `Auto-detected`
+  - Description: Specify the environment explicitly (e.g., `'browser'` or `'server'`).
 
 ## License
 This package is licensed under the [MIT License](https://opensource.org/license/mit/).
 
 ## Contributing
-Contributions are welcome! Feel free to submit issues or pull requests.
+- Fork the repository.
+- Create a new branch: git checkout -b feature-name.
+- Commit your changes: git commit -m 'Add feature'.
+- Push to the branch: git push origin feature-name.
+- Submit a pull request.
+
+## Support
+If you encounter any issues or have questions, feel free to open an issue on [**Repo Issues**](https://github.com/moumen-soliman/hashed-device-fingerprint-js/issues).
+
+Happy coding! 🚀
