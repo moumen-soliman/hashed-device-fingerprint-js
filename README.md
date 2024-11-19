@@ -29,6 +29,12 @@ Install the package using npm:
 npm install hashed-device-fingerprint-js
 ```
 
+Install the package using yarn:
+
+```
+yarn add hashed-device-fingerprint-js
+```
+
 ## Usage
 ### Basic Usage
 
