@@ -1,4 +1,5 @@
 # hashed-device-fingerprint-js
+[![npm version](https://img.shields.io/npm/v/hashed-device-fingerprint-js)](https://www.npmjs.com/package/hashed-device-fingerprint-js)
 
 ```
 +-------------------+------------------------+
