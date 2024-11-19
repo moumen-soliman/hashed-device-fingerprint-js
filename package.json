@@ -1,6 +1,6 @@
 {
   "name": "hashed-device-fingerprint-js",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "homepage": "https://moumen-soliman.github.io/hashed-device-fingerprint-docs/",
   "description": "A lightweight library for generating hashed fingerprints based on selected device data.",
   "main": "dist/index.min.js",
