@@ -56,8 +56,8 @@ generateHashedFingerprint()
 In a Server environment, pass HTTP headers to generate a fingerprint. Use the environment option to specify the server-side environment.
 
 ```typescript
-const { generateHashedFingerprint } = require('hashed-fingerprint');
-// import { generateHashedFingerprint } from 'hashed-fingerprint';
+const { generateHashedFingerprint } = require('hashed-device-fingerprint-js');
+// import { generateHashedFingerprint } from 'hashed-device-fingerprint-js';
 
 // Example HTTP headers
 const headers = {
@@ -122,6 +122,39 @@ generateHashedFingerprint({ useIP: false })
 generateHashedFingerprint({ userIP: '203.0.113.45' })
     .then(hash => console.log('Fingerprint with manual IP:', hash))
     .catch(error => console.error('Error:', error));
+```
+
+### Server API
+```javascript
+const { generateHashedFingerprint } = require('hashed-device-fingerprint-js');
+
+// Basic route
+app.get('/hash', async (req, res) => {
+    // Define headers for fingerprint generation
+    const headers = {
+        'user-agent': req.headers['user-agent'] || 'Unknown',
+        'accept-language': req.headers['accept-language'] || 'Unknown',
+        'x-forwarded-for': req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'Unknown',
+    };
+
+    try {
+        // Generate the fingerprint hash
+        const hash = await generateHashedFingerprint({
+            environment: 'server',
+            headers,
+        });
+
+        // Log the hash
+        console.log('Generated Hash:', hash);
+
+        // Send the hash as the response
+        res.send({ hash });
+    } catch (error) {
+        // Handle errors
+        console.error('Error generating fingerprint:', error);
+        res.status(500).send({ error: 'Failed to generate fingerprint' });
+    }
+});
 ```
 
 ## TypeScript Support
