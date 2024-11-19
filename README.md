@@ -12,15 +12,24 @@
 +-----------------+-----------------+-----------------+
 ```
 
-A lightweight JavaScript/TypeScript package for generating hashed fingerprints based on device data. Includes options for customizable device information, IP address integration, and cookie management.
+A lightweight JavaScript/TypeScript package that generates unique hashed fingerprints for devices in both browser and server environments. The library allows customization of what data is included in the fingerprint, with options for saving the hash in cookies, passing headers for server-side use, and providing the user's IP directly.
+
+[**NPM**](https://www.npmjs.com/package/hashed-device-fingerprint-js)
 
 ## Features
-- Device Data Fingerprinting: Collects user agent, screen resolution, platform, and more.
-- SHA-256 Hashing: Uses [js-sha256](https://www.npmjs.com/package/js-sha256) for secure hashing.
-- IP Address Integration: Fetch IP automatically, pass it manually, or disable it entirely.
-- Cookie Management: Optionally save hashed fingerprints in cookies.
-- Fully Configurable: Enable or disable specific device data fields as needed.
-- TypeScript Support: Fully typed for better integration with modern frameworks like Next.js.
+- Generate a unique fingerprint hash based on:
+  - User Agent
+  - Browser/System Language
+  - Screen Resolution (Browser-only)
+  - Platform (e.g., `Win32` or `Linux`)
+  - Hardware Concurrency (Browser-only)
+  - IP Address (with options to pass it manually or fetch automatically)
+- Support for browser and server environments:
+  - **Browser**: Uses `navigator` and `screen` properties.
+  - **Server**: Relies on HTTP headers and server-side properties.
+- Save the hashed fingerprint in a cookie (browser only) with a customizable expiration time.
+- Fully customizable: enable or disable specific data points.
+- Compatible with both `require` (CommonJS) and `import` (ES Modules).
 
 ## Installation
 Install the package using npm:
@@ -30,14 +39,37 @@ npm install hashed-device-fingerprint-js
 ```
 
 ## Usage
-### Basic Usage
+### Default Behavior (Browser)
 
-Generate a hashed fingerprint with all options enabled (default behavior):
+By default, all options are enabled. The library generates a fingerprint hash using all available device data and automatically fetches the user's IP address.
 
 ```typescript
 import { generateHashedFingerprint } from 'hashed-device-fingerprint-js';
 
 generateHashedFingerprint()
+    .then(hash => console.log('Fingerprint Hash:', hash))
+    .catch(error => console.error('Error:', error));
+```
+
+### Server-Side Usage
+
+In a Server environment, pass HTTP headers to generate a fingerprint. Use the environment option to specify the server-side environment.
+
+```typescript
+const { generateHashedFingerprint } = require('hashed-fingerprint');
+// import { generateHashedFingerprint } from 'hashed-fingerprint';
+
+// Example HTTP headers
+const headers = {
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    'accept-language': 'en-US,en;q=0.9',
+    'x-forwarded-for': '203.0.113.45',
+};
+
+generateHashedFingerprint({
+    environment: 'server',
+    headers,
+})
     .then(hash => console.log('Fingerprint Hash:', hash))
     .catch(error => console.error('Error:', error));
 ```
@@ -60,54 +92,6 @@ generateHashedFingerprint({
     .then(hash => console.log('Custom Fingerprint Hash:', hash))
     .catch(error => console.error('Error:', error));
 ```
-
-## Options
-
-- `saveToCookie`
-  - Type: `boolean`
-  - Default: `true`
-  - Description: Save the generated hash in a cookie.
-
-- `cookieExpiryDays`
-  - Type: `number`
-  - Default: `7`
-  - Description: Number of days before the cookie expires.
-
-- `useUserAgent`
-  - Type: `boolean`
-  - Default: `true`
-  - Description: Include the browser's user agent string in the fingerprint.
-
-- `useLanguage`
-  - Type: `boolean`
-  - Default: `true`
-  - Description: Include the browser's language setting in the fingerprint.
-
-- `useScreenResolution`
-  - Type: `boolean`
-  - Default: `true`
-  - Description: Include the screen's resolution and color depth in the fingerprint.
-
-- `usePlatform`
-  - Type: `boolean`
-  - Default: `true`
-  - Description: Include platform information (e.g., "Win32", "MacIntel").
-
-- `useConcurrency`
-  - Type: `boolean`
-  - Default: `true`
-  - Description: Include the number of logical processors.
-
-- `useIP`
-  - Type: `boolean`
-  - Default: `true`
-  - Description: Fetch and include the user's IP address.
-
-- `userIP`
-  - Type: `string`
-  - Default: `null`
-  - Description: Provide an IP address manually (overrides API fetch).
-
 
 ## IP Address Handling
 The IP address is included in the fingerprint based on these rules:
@@ -172,8 +156,74 @@ generateHashedFingerprint()
     });
 ```
 
+## Options
+
+- `saveToCookie`
+  - Type: `boolean`
+  - Default: `true`
+  - Description: Save the generated hash in a cookie.
+
+- `cookieExpiryDays`
+  - Type: `number`
+  - Default: `7`
+  - Description: Number of days before the cookie expires.
+
+- `useUserAgent`
+  - Type: `boolean`
+  - Default: `true`
+  - Description: Include the browser's user agent string in the fingerprint.
+
+- `useLanguage`
+  - Type: `boolean`
+  - Default: `true`
+  - Description: Include the browser's language setting in the fingerprint.
+
+- `useScreenResolution`
+  - Type: `boolean`
+  - Default: `true`
+  - Description: Include the screen's resolution and color depth in the fingerprint.
+
+- `usePlatform`
+  - Type: `boolean`
+  - Default: `true`
+  - Description: Include platform information (e.g., "Win32", "MacIntel").
+
+- `useConcurrency`
+  - Type: `boolean`
+  - Default: `true`
+  - Description: Include the number of logical processors.
+
+- `useIP`
+  - Type: `boolean`
+  - Default: `true`
+  - Description: Fetch and include the user's IP address.
+
+- `userIP`
+  - Type: `string`
+  - Default: `null`
+  - Description: Provide an IP address manually (overrides API fetch).
+
+- `headers`
+  - Type: `Record<string, string[]>`
+  - Default: `{}`
+  - Description: HTTP headers for server-side fingerprinting.
+
+- `environment`
+  - Type: `'browser' | 'server'`
+  - Default: `Auto-detected`
+  - Description: Specify the environment explicitly (e.g., `'browser'` or `'server'`).
+
 ## License
 This package is licensed under the [MIT License](https://opensource.org/license/mit/).
 
 ## Contributing
-Contributions are welcome! Feel free to submit issues or pull requests.
+- Fork the repository.
+- Create a new branch: git checkout -b feature-name.
+- Commit your changes: git commit -m 'Add feature'.
+- Push to the branch: git push origin feature-name.
+- Submit a pull request.
+
+## Support
+If you encounter any issues or have questions, feel free to open an issue on [**Repo Issues**](https://github.com/moumen-soliman/hashed-device-fingerprint-js/issues).
+
+Happy coding! 🚀
