@@ -8,17 +8,17 @@
          |                |                |
 +-----------------+-----------------+-----------------+
 | (DEVICE A)      | (DEVICE B)      | (DEVICE C)      |
-| unique device   | unique device   | unique device   |
+| device-specific | device-specific | device-specific |
 | fingerprint     | fingerprint     | fingerprint     |
 +-----------------+-----------------+-----------------+
 ```
 
-A lightweight JavaScript/TypeScript package that generates unique hashed fingerprints for devices in both browser and server environments. The library allows customization of what data is included in the fingerprint, with options for saving the hash in cookies, passing headers for server-side use, and providing the user's IP directly.
+A lightweight JavaScript/TypeScript package that generates device-specific hashed fingerprints for devices in both browser and server environments. The library allows customization of what data is included in the fingerprint, with options for saving the hash in cookies, passing headers for server-side use, and providing the user's IP directly.
 
 [**NPM**](https://www.npmjs.com/package/hashed-device-fingerprint-js)
 
 ## Features
-- Generate a unique fingerprint hash based on:
+- Generate a device-specific fingerprint hash based on:
   - User Agent
   - Browser/System Language
   - Screen Resolution (Browser-only)
