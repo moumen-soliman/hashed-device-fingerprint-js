@@ -131,8 +131,8 @@ function defaultFingerprintOptions(): FingerprintOptions {
     return {
         saveToCookie: true,
         cookieExpiryDays: 7,
-        useUserAgent: true,
-        useLanguage: true,
+        useUserAgent: false,
+        useLanguage: false,
         useScreenResolution: true,
         usePlatform: true,
         useConcurrency: true,
