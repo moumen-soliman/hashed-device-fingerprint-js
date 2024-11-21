@@ -12,6 +12,7 @@ export interface FingerprintOptions {
     userIP?: string | null; // Directly provide the user's IP address
     headers?: Record<string, string | string[]>; // Server-side headers
     environment?: 'browser' | 'server'; // Specify the environment explicitly
+    customData?: string | null; // Custom data to include in the fingerprint (e.g., UUID or user ID)
 }
 
 /**
@@ -23,8 +24,8 @@ export async function generateHashedFingerprint(options: Partial<FingerprintOpti
     const {
         saveToCookie = true,
         cookieExpiryDays = 7,
-        useUserAgent = true,
-        useLanguage = true,
+        useUserAgent = false,
+        useLanguage = false,
         useScreenResolution = true,
         usePlatform = true,
         useConcurrency = true,
@@ -32,6 +33,7 @@ export async function generateHashedFingerprint(options: Partial<FingerprintOpti
         userIP = null,
         headers = {},
         environment = typeof window !== "undefined" ? "browser" : "server",
+        customData = null,
     } = { ...defaultFingerprintOptions(), ...options };
 
     try {
@@ -90,6 +92,11 @@ export async function generateHashedFingerprint(options: Partial<FingerprintOpti
             }
         }
 
+        // Add custom data if provided
+        if (customData) {
+            deviceDataParts.push(customData);
+        }
+
         const deviceData = deviceDataParts.join("||");
         return sha256(deviceData);
     } catch (error) {
@@ -133,5 +140,6 @@ function defaultFingerprintOptions(): FingerprintOptions {
         userIP: null,
         headers: {},
         environment: "browser",
+        customData: null,
     };
 }

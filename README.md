@@ -17,10 +17,17 @@ A lightweight JavaScript/TypeScript package that generates device-specific hashe
 
 [**NPM**](https://www.npmjs.com/package/hashed-device-fingerprint-js)
 
+## Important
+`hashed-device-fingerprint-js` generates fingerprints using device data like `[screenResolution, platform, concurrency, userIP]` by default, with `userAgent` and `language` disabled. You can add `customData (e.g., userID)` to make the array `[screenResolution, platform, concurrency, userIP, customData]` (e.g. `[1920x1080, Windows, 4 cores, 203.0.113.45, user-12345]`), ensures a consistent generated same hash across browsers on the same device.
+
+- A real-world example: Limiting sharing by detecting multiple devices accessing a single account.
+- A real-world example: preventing fraud by tracking devices creating fake accounts.
+and more...
+
 ## Features
 - Generate a device-specific fingerprint hash based on:
-  - User Agent
-  - Browser/System Language
+  - User Agent (disabled by default)
+  - Browser/System Language (disabled by default)
   - Screen Resolution (Browser-only)
   - Platform (e.g., `Win32` or `Linux`)
   - Hardware Concurrency (Browser-only)
@@ -48,7 +55,7 @@ yarn add hashed-device-fingerprint-js
 ## Usage
 ### Default Behavior (Browser)
 
-By default, all options are enabled. The library generates a fingerprint hash using all available device data and automatically fetches the user's IP address.
+By default, all options are enabled (`userAgent` and `language` disabled). The library generates a fingerprint hash using all available device data and automatically fetches the user's IP address.
 
 ```typescript
 import { generateHashedFingerprint } from 'hashed-device-fingerprint-js';
@@ -86,7 +93,7 @@ Customize the behavior by passing an options object:
 
 ```typescript
 generateHashedFingerprint({
-    useUserAgent: true,         // Include the user agent (default: true)
+    useUserAgent: false,        // Exclude the user agent (default: true)
     useLanguage: false,         // Exclude the browser language
     useScreenResolution: true,  // Include screen resolution (default: true)
     usePlatform: true,          // Include platform information (default: true)
@@ -100,7 +107,7 @@ generateHashedFingerprint({
     .catch(error => console.error('Error:', error));
 ```
 
-## IP Address Handling
+### IP Address Handling
 The IP address is included in the fingerprint based on these rules:
 
 - If `userIP` is provided, it is used directly.
@@ -210,12 +217,12 @@ generateHashedFingerprint()
 
 - `useUserAgent`
   - Type: `boolean`
-  - Default: `true`
+  - Default: `false`
   - Description: Include the browser's user agent string in the fingerprint.
 
 - `useLanguage`
   - Type: `boolean`
-  - Default: `true`
+  - Default: `false`
   - Description: Include the browser's language setting in the fingerprint.
 
 - `useScreenResolution`
@@ -253,14 +260,19 @@ generateHashedFingerprint()
   - Default: `Auto-detected`
   - Description: Specify the environment explicitly (e.g., `'browser'` or `'server'`).
 
+- `customData`
+  - Type: `string`
+  - Default: `null`
+  - Description: Custom data to include in the fingerprint (e.g., `UUID` or `user ID`).
+
 ## License
 This package is licensed under the [MIT License](https://opensource.org/license/mit/).
 
 ## Contributing
 - Fork the repository.
-- Create a new branch: git checkout -b feature-name.
-- Commit your changes: git commit -m 'Add feature'.
-- Push to the branch: git push origin feature-name.
+- Create a new branch: `git checkout -b feature-name`.
+- Commit your changes: `git commit -m 'Add feature'`.
+- Push to the branch: `git push origin feature-name`.
 - Submit a pull request.
 
 ## Support
